@@ -1,0 +1,114 @@
+-- Creación de la base de datos
+CREATE DATABASE arteconecta WITH 
+    ENCODING = 'UTF8' 
+    LC_COLLATE = 'en_US.UTF-8' 
+    LC_CTYPE = 'en_US.UTF-8';
+
+-- Conectarse a la base de datos
+\c arteconecta
+
+-- Extensión para UUIDs
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Tabla de usuarios
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    email_verified_at TIMESTAMP NULL,
+    password VARCHAR(255) NOT NULL,
+    remember_token VARCHAR(100) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    avatar_path VARCHAR(255) NULL,
+    bio TEXT NULL,
+    user_type VARCHAR(20) NOT NULL CHECK (user_type IN ('artist', 'visitor')),
+    website_url VARCHAR(255) NULL,
+    social_media JSONB NULL,
+    reset_password_token VARCHAR(100) NULL,
+    reset_password_token_expires_at TIMESTAMP NULL
+);
+
+-- Tabla de categorías de arte
+CREATE TABLE art_categories (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(100) NOT NULL,
+    description TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla de obras de arte
+CREATE TABLE artworks (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    artist_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(200) NOT NULL,
+    description TEXT NULL,
+    category_id UUID NOT NULL REFERENCES art_categories(id),
+    image_path VARCHAR(255) NOT NULL,
+    creation_date DATE NULL,
+    technique VARCHAR(100) NULL,
+    dimensions VARCHAR(50) NULL,
+    is_public BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla de likes/favoritos
+CREATE TABLE artwork_likes (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    artwork_id UUID NOT NULL REFERENCES artworks(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (artwork_id, user_id)
+);
+
+-- Tabla de comentarios
+CREATE TABLE comments (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    artwork_id UUID NOT NULL REFERENCES artworks(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla de seguidores
+CREATE TABLE followers (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    artist_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    follower_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (artist_id, follower_id)
+);
+
+-- Tabla de notificaciones
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type VARCHAR(50) NOT NULL,
+    notifiable_type VARCHAR(50) NOT NULL,
+    notifiable_id UUID NOT NULL,
+    data JSONB NULL,
+    read_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla de sesiones (para login/logout)
+CREATE TABLE sessions (
+    id VARCHAR(255) PRIMARY KEY,
+    user_id UUID NULL REFERENCES users(id) ON DELETE CASCADE,
+    ip_address VARCHAR(45) NULL,
+    user_agent TEXT NULL,
+    payload TEXT NOT NULL,
+    last_activity INTEGER NOT NULL
+);
+
+-- Insertar categorías iniciales
+INSERT INTO art_categories (name, description) VALUES 
+('Pintura', 'Obras creadas con técnicas de pintura como óleo, acrílico, acuarela, etc.'),
+('Escultura', 'Obras tridimensionales creadas con diversos materiales.'),
+('Fotografía', 'Imágenes capturadas con cámara fotográfica.'),
+('Digital', 'Arte creado con herramientas digitales.'),
+('Ilustración', 'Dibujos y representaciones gráficas.'),
+('Mixta', 'Obras que combinan varias técnicas artísticas.');
