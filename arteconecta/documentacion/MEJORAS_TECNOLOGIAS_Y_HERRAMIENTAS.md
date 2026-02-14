@@ -2,7 +2,7 @@
 
 Este documento propone mejoras **detalladas** para ArteConecta después de revisar el código y su arquitectura actual. Incluye **qué mejorar**, **por qué** y **qué tecnologías/herramientas** usar para implementarlo.
 
-> Nota: El análisis funcional/arquitectónico general del proyecto está en `documentaion/ANALISIS_PROYECTO.md` (la carpeta fue creada previamente con ese nombre).
+> Nota: El análisis funcional/arquitectónico general del proyecto está en `documentacion/ANALISIS_PROYECTO.md`.
 
 ---
 
