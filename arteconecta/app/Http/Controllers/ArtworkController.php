@@ -42,7 +42,9 @@ class ArtworkController extends Controller
     {
         // Obtener todas las obras públicas con información del artista y categoría
         $artworks = Artwork::with(['artist', 'category'])
-                        ->where('is_public', true)
+                        // Con PDO::ATTR_EMULATE_PREPARES (Neon pooler) los booleanos pueden
+                        // serializarse como 1/0 y PostgreSQL rechaza boolean = integer.
+                        ->where('is_public', 'true')
                         ->latest()
                         ->paginate(12);
         
@@ -149,8 +151,10 @@ class ArtworkController extends Controller
                     
                     // Convertir el valor 'on' del checkbox a booleano true/false
                     // Los checkboxes HTML envían 'on' cuando están marcados y nada cuando no lo están
-                    $artwork->is_public = $request->has('is_public') ? true : false;
-                    \Log::info('Valor de is_public: ' . ($artwork->is_public ? 'true' : 'false'));
+                    // Con Neon pooler + emulación de prepares, Laravel puede enviar booleanos como 1/0
+                    // y PostgreSQL los rechaza. Guardamos 'true'/'false' explícitamente.
+                    $artwork->is_public = $request->has('is_public') ? 'true' : 'false';
+                    \Log::info('Valor de is_public: ' . ($request->has('is_public') ? 'true' : 'false'));
                     
                     try {
                         \Log::info('Intentando guardar en la base de datos...');
@@ -319,7 +323,9 @@ class ArtworkController extends Controller
             $artwork->technique = $request->technique;
             $artwork->dimensions = $request->dimensions;
             $artwork->creation_date = $request->creation_date;
-            $artwork->is_public = $request->has('is_public') ? true : false;
+            // Con Neon pooler + emulación de prepares, Laravel puede enviar booleanos como 1/0
+            // y PostgreSQL los rechaza. Guardamos 'true'/'false' explícitamente.
+            $artwork->is_public = $request->has('is_public') ? 'true' : 'false';
             
             // Solo actualizar la imagen si se proporciona una nueva
             if ($request->hasFile('image') && $request->file('image')->isValid()) {

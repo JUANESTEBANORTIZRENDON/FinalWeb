@@ -198,7 +198,7 @@
                         @php
                             $otherArtworks = $artwork->artist->artworks()
                                 ->where('id', '!=', $artwork->id)
-                                ->where('is_public', true)
+                                ->where('is_public', 'true')
                                 ->latest()
                                 ->take(4)
                                 ->get();

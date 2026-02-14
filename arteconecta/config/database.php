@@ -65,18 +65,18 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => null,
-            'host' => 'ep-wandering-pine-acgrhd1v-pooler.sa-east-1.aws.neon.tech',
-            'port' => '5432',
-            'database' => 'BDarteconecta', // La base de datos en Neon Tech
-            'username' => 'BDarteconecta_owner',
-            'password' => 'npg_F8X3rBgToWkd',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'forge'),
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'require',
-            // No es necesario especificar opciones aquí, nuestro proveedor personalizado lo hará
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // Opciones adicionales pueden ser configuradas via config/pdo options si se requiere
         ],
 
         'sqlsrv' => [

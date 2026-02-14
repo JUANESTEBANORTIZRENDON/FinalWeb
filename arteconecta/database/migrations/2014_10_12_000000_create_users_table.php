@@ -8,21 +8,25 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration
 {
     /**
+     * Postgres en Neon puede rechazar/romper la transacción cuando se ejecuta
+     * `CREATE EXTENSION` dentro de una migración transaccional. Desactivamos
+     * la transacción para esta migración.
+     *
+     * @var bool
+     */
+    public $withinTransaction = false;
+
+    /**
      * Run the migrations.
      */
     public function up(): void
     {
         // Primero, verificamos si la extensión ya existe para evitar conflictos de transacción
         try {
-            // Esto se ejecuta fuera de la transacción principal
             DB::statement('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
-        } catch (\Exception $e) {
-            // La extensión ya podría existir o hay otro problema, pero continuamos
-            // Ya la creamos manualmente en el script de conexión
-        }
-        
+        } catch (\Exception $e) {}
         Schema::create('users', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('uuid_generate_v4()'));
+            $table->uuid('id')->primary()->default(DB::raw('public.uuid_generate_v4()'));
             $table->string('name', 100);
             $table->string('email', 100)->unique();
             $table->timestamp('email_verified_at')->nullable();

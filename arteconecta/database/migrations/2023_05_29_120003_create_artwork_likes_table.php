@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('artwork_likes', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('uuid_generate_v4()'));
+            $table->uuid('id')->primary()->default(DB::raw('public.uuid_generate_v4()'));
             $table->uuid('artwork_id');
             $table->uuid('user_id');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));

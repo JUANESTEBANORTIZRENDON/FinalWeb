@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Database\Connection;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Connectors\PostgresConnector;
+use PDO;
 
 class NeonDatabaseServiceProvider extends ServiceProvider
 {
@@ -29,12 +30,21 @@ class NeonDatabaseServiceProvider extends ServiceProvider
                         $dsn = "pgsql:host={$host};dbname={$config['database']};port={$config['port']};";
                         $dsn .= "options=endpoint={$endpointId}";
                         
+                        $options = $this->getOptions($config);
+
+                        // El pooler (PgBouncer) en modo transaction pooling suele romper
+                        // los prepared statements del servidor. Emulamos prepares para
+                        // evitar errores durante migraciones/DDL y en general.
+                        if (str_contains($host, '-pooler.') || str_contains($host, 'pooler')) {
+                            $options[PDO::ATTR_EMULATE_PREPARES] = true;
+                        }
+
                         // Conectarse usando DSN personalizado
                         return $this->createPdoConnection(
                             $dsn, 
                             $config['username'], 
                             $config['password'], 
-                            $config['options'] ?? []
+                            $options
                         );
                     }
                     

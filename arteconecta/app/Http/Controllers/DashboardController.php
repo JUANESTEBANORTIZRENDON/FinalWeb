@@ -34,7 +34,7 @@ class DashboardController extends Controller
         
         // Para visitantes, mostrar contenido relevante
         $recentArtworks = Artwork::with(['artist', 'category', 'likes', 'comments'])
-                            ->where('is_public', true)
+                            ->where('is_public', 'true')
                             ->latest()
                             ->take(6)
                             ->get();
@@ -45,7 +45,7 @@ class DashboardController extends Controller
         // Obtener obras de los artistas seguidos
         $followedArtistsArtworks = Artwork::with(['artist', 'category', 'likes', 'comments'])
                                     ->whereIn('artist_id', $followingArtistsIds)
-                                    ->where('is_public', true)
+                                    ->where('is_public', 'true')
                                     ->latest()
                                     ->take(6)
                                     ->get();
@@ -54,7 +54,7 @@ class DashboardController extends Controller
         $likedArtworksIds = $user->likes()->pluck('artwork_id');
         $likedArtworks = Artwork::with(['artist', 'category', 'likes', 'comments'])
                           ->whereIn('id', $likedArtworksIds)
-                          ->where('is_public', true)
+                          ->where('is_public', 'true')
                           ->latest()
                           ->take(6)
                           ->get();

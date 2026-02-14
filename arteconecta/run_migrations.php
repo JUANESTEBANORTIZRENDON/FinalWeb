@@ -10,17 +10,26 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
 try {
-    // Conectarse a Neon Tech con el endpoint ID especificado
-    $dsn = "pgsql:host=ep-wandering-pine-acgrhd1v-pooler.sa-east-1.aws.neon.tech;dbname=BDarteconecta;options=endpoint=ep-wandering-pine-acgrhd1v";
-    $user = "BDarteconecta_owner";
-    $password = "npg_F8X3rBgToWkd";
+    $host = $_ENV['DB_HOST'] ?? '';
+    $port = $_ENV['DB_PORT'] ?? '5432';
+    $database = $_ENV['DB_DATABASE'] ?? '';
+    $user = $_ENV['DB_USERNAME'] ?? '';
+    $password = $_ENV['DB_PASSWORD'] ?? '';
+
+    if ($host === '' || $database === '' || $user === '') {
+        throw new RuntimeException('Faltan variables DB_* en .env');
+    }
+
+    // Conectarse a Neon (si es host Neon, agregamos el endpoint automáticamente)
+    $endpointId = explode('.', $host)[0] ?? '';
+    $dsn = "pgsql:host={$host};dbname={$database};port={$port};options=endpoint={$endpointId}";
     
     $pdo = new PDO($dsn, $user, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
     
-    echo "¡Conexión exitosa a Neon Tech!\n";
+    echo "Conexión exitosa a Neon.\n";
     
     // Crear la extensión uuid-ossp
     $pdo->exec('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');

@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('art_categories', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('uuid_generate_v4()'));
+            $table->uuid('id')->primary()->default(DB::raw('public.uuid_generate_v4()'));
             $table->string('name', 100);
             $table->text('description')->nullable();
             $table->timestamps();

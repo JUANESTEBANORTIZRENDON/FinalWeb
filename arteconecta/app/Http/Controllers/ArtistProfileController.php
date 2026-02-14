@@ -133,7 +133,9 @@ class ArtistProfileController extends Controller
         
         // Cargar solo las obras públicas del artista
         $artworks = $artist->artworks()
-                          ->where('is_public', true)
+                          // Ver comentario en ArtworkController: PDO emulando prepares en Neon pooler
+                          // puede convertir boolean a 1/0.
+                          ->where('is_public', 'true')
                           ->with('category')
                           ->latest()
                           ->get();
