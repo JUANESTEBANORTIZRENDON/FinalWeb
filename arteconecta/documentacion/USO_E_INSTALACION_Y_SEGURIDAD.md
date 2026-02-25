@@ -27,7 +27,7 @@
    `php artisan storage:link`
 8) Ejecutar en modo dev  
    - Backend: `php artisan serve`
-   - Frontend assets (watch): `npm run dev`
+   - Frontend assets (watch): ` run dev`
    - Build producción: `npm run build`
 
 ## 3. Uso rápido
@@ -43,7 +43,7 @@
 
 ## 5. Pruebas
 - Pruebas de aplicación: `php artisan test`
-- Para assets: `npm run build` (verifica que compila sin errores).
+- Para assets: `npm run build` (verinpmfica que compila sin errores).
 
 ## 6. Pautas de seguridad (repositorio y despliegue)
 - No commitear `.env` ni credenciales; `.gitignore` ya lo excluye.
