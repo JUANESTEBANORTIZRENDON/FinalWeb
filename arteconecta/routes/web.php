@@ -25,6 +25,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/quienes-somos', function () {
+    return view('about');
+})->name('about');
+
 Route::get('/dashboard', function () {
     if (auth()->user()->isArtist()) {
         return redirect()->route('artist.profile');

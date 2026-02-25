@@ -10,6 +10,7 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=montserrat:400,500,600,700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Rubik+Dirt&display=swap" rel="stylesheet">
         
         <!-- Bootstrap CSS (CDN) -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -121,6 +122,14 @@
                 font-weight: 700;
                 color: white;
                 text-decoration: none;
+            }
+
+            .logo-graffiti {
+                font-family: 'Rubik Dirt', 'Montserrat', sans-serif;
+                font-size: 1.8rem;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                text-shadow: 2px 2px 0 rgba(30, 27, 75, 0.6), 0 6px 18px rgba(0, 0, 0, 0.25);
             }
             
             .nav-links {

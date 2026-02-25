@@ -3,14 +3,14 @@
     <div class="navbar-container" style="display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
         <!-- Logo y Enlaces a la izquierda -->
         <div style="display: flex; align-items: center;">
-            <a href="/" class="logo" style="margin-right: 2rem;">ArteConecta</a>
+            <a href="/" class="logo logo-graffiti" style="margin-right: 2rem;">BANTER</a>
             
             <!-- Enlaces principales en el navbar -->
             <div class="nav-links">
                 <a href="/" class="nav-link {{ request()->is('/') ? 'active' : '' }}">Inicio</a>
-                <a href="{{ route('artworks.index') }}" class="nav-link {{ request()->routeIs('artworks.index') ? 'active' : '' }}">Galería</a>
-                <a href="{{ url('/#features') }}" class="nav-link {{ request()->routeIs('conocenos') ? 'active' : '' }}">Conócenos</a>
                 <a href="{{ route('artists.index') }}" class="nav-link {{ request()->routeIs('artists.index') ? 'active' : '' }}">Artistas</a>
+                <a href="{{ route('artworks.index') }}" class="nav-link {{ request()->routeIs('artworks.index') ? 'active' : '' }}">Obras</a>
+                <a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}">Quiénes somos</a>
                 <a href="{{ route('books.recommendations') }}" class="nav-link {{ request()->routeIs('books.recommendations') ? 'active' : '' }}">
                     <i class="fas fa-book me-1"></i> Biblioteca
                 </a>
