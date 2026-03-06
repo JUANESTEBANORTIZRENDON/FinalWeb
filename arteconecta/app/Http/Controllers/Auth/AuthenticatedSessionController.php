@@ -30,7 +30,11 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         // Redirección basada en el tipo de usuario
-        if (auth()->user()->isArtist()) {
+        if ($request->user()->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        if ($request->user()->isArtist()) {
             return redirect()->route('artist.profile');
         } else {
             return redirect()->intended(RouteServiceProvider::HOME);

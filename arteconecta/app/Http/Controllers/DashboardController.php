@@ -31,33 +31,51 @@ class DashboardController extends Controller
         if ($user->isArtist()) {
             return redirect()->route('artist.profile');
         }
+
+        // Redirigir administradores a su panel y evitar consultas de feed de visitante.
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
         
-        // Para visitantes, mostrar contenido relevante
-        $recentArtworks = Artwork::with(['artist', 'category', 'likes', 'comments'])
-                            ->where('is_public', 'true')
-                            ->latest()
-                            ->take(6)
-                            ->get();
-        
-        // Obtener artistas que el usuario sigue
-        $followingArtistsIds = $user->following()->pluck('artist_id');
-        
-        // Obtener obras de los artistas seguidos
-        $followedArtistsArtworks = Artwork::with(['artist', 'category', 'likes', 'comments'])
-                                    ->whereIn('artist_id', $followingArtistsIds)
-                                    ->where('is_public', 'true')
-                                    ->latest()
-                                    ->take(6)
-                                    ->get();
-                                    
-        // Obtener artworks que el usuario ha marcado como favoritos (liked)
-        $likedArtworksIds = $user->likes()->pluck('artwork_id');
-        $likedArtworks = Artwork::with(['artist', 'category', 'likes', 'comments'])
-                          ->whereIn('id', $likedArtworksIds)
-                          ->where('is_public', 'true')
-                          ->latest()
-                          ->take(6)
-                          ->get();
+        // Para visitantes, mostrar contenido relevante con conteos agregados para evitar N+1.
+        $recentArtworks = Artwork::query()
+            ->select(['id', 'artist_id', 'category_id', 'title', 'description', 'image_path', 'created_at'])
+            ->with(['artist:id,name', 'category:id,name'])
+            ->withCount(['likes', 'comments'])
+            ->where('is_public', 'true')
+            ->latest()
+            ->take(6)
+            ->get();
+
+        // Obras de artistas seguidos usando subconsulta en lugar de pluck previo.
+        $followedArtistsArtworks = Artwork::query()
+            ->select(['id', 'artist_id', 'category_id', 'title', 'description', 'image_path', 'created_at'])
+            ->with(['artist:id,name', 'category:id,name'])
+            ->withCount(['likes', 'comments'])
+            ->where('is_public', 'true')
+            ->whereIn('artist_id', function ($query) use ($user) {
+                $query->select('artist_id')
+                    ->from('followers')
+                    ->where('follower_id', $user->id);
+            })
+            ->latest()
+            ->take(6)
+            ->get();
+
+        // Obras favoritas del usuario con subconsulta.
+        $likedArtworks = Artwork::query()
+            ->select(['id', 'artist_id', 'category_id', 'title', 'description', 'image_path', 'created_at'])
+            ->with(['artist:id,name', 'category:id,name'])
+            ->withCount(['likes', 'comments'])
+            ->where('is_public', 'true')
+            ->whereIn('id', function ($query) use ($user) {
+                $query->select('artwork_id')
+                    ->from('artwork_likes')
+                    ->where('user_id', $user->id);
+            })
+            ->latest()
+            ->take(6)
+            ->get();
 
         return view('visitor.dashboard', compact('recentArtworks', 'followedArtistsArtworks', 'likedArtworks', 'user'));
     }

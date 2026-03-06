@@ -41,11 +41,18 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $credentials = [
+            'email' => $this->input('email'),
+            'password' => $this->input('password'),
+            // Evita autenticar cuentas desactivadas sin requerir una segunda consulta.
+            'is_active' => 'true',
+        ];
+
+        if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'Credenciales inválidas o cuenta inactiva.',
             ]);
         }
 

@@ -106,8 +106,8 @@
                     <tr>
                         <td>{{ $artwork->title }}</td>
                         <td>{{ $artwork->category ? $artwork->category->name : 'Sin categoría' }}</td>
-                        <td>{{ $artwork->likes->count() }}</td>
-                        <td>{{ $artwork->comments->count() }}</td>
+                        <td>{{ $artwork->likes_count }}</td>
+                        <td>{{ $artwork->comments_count }}</td>
                         <td>{{ $artwork->created_at->format('d/m/Y') }}</td>
                     </tr>
                 @endforeach

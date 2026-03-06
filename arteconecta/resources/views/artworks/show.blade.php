@@ -57,24 +57,24 @@
                                     <button class="btn {{ $userHasLiked ? 'btn-danger' : 'btn-outline-danger' }} me-2 btn-like" 
                                             data-artwork-id="{{ $artwork->id }}">
                                         <i class="bi bi-heart{{ $userHasLiked ? '-fill' : '' }}"></i> 
-                                        <span class="likes-count">{{ $artwork->likes->count() }}</span>
+                                        <span class="likes-count">{{ $artwork->likes_count }}</span>
                                     </button>
                                 @else
                                     <button class="btn btn-outline-danger me-2" disabled>
                                         <i class="bi bi-heart"></i> 
-                                        <span class="likes-count">{{ $artwork->likes->count() }}</span>
+                                        <span class="likes-count">{{ $artwork->likes_count }}</span>
                                     </button>
                                 @endif
                             @else
                                 <a href="{{ route('login') }}" class="btn btn-outline-danger me-2">
                                     <i class="bi bi-heart"></i> 
-                                    <span class="likes-count">{{ $artwork->likes->count() }}</span>
+                                    <span class="likes-count">{{ $artwork->likes_count }}</span>
                                 </a>
                             @endauth
                             
                             <span class="ms-3">
                                 <i class="bi bi-chat-fill text-primary"></i> 
-                                {{ $artwork->comments->count() }} comentarios
+                                {{ $artwork->comments_count }} comentarios
                             </span>
                         </div>
                     </div>
@@ -86,9 +86,9 @@
                         <h4 class="mb-0">Comentarios</h4>
                     </div>
                     <div class="card-body">
-                        @if($artwork->comments->count() > 0)
+                        @if($artwork->comments_count > 0)
                             <div class="comments-list">
-                                @foreach($artwork->comments->sortByDesc('created_at') as $comment)
+                                @foreach($artwork->comments as $comment)
                                     <div class="comment mb-3 pb-3 border-bottom">
                                         <div class="d-flex justify-content-between mb-2">
                                             <div>
@@ -171,9 +171,6 @@
                         @auth
                             @if(auth()->id() !== $artwork->artist_id)
                                 <!-- Botón de seguir artista -->
-                                @php
-                                    $isFollowing = Auth::user()->followedArtists()->where('artist_id', $artwork->artist_id)->exists();
-                                @endphp
                                 <button class="btn {{ $isFollowing ? 'btn-primary' : 'btn-outline-primary' }} w-100 mb-2 btn-follow" 
                                         data-artist-id="{{ $artwork->artist_id }}">
                                     <i class="fas {{ $isFollowing ? 'fa-user-check' : 'fa-user-plus' }} me-1"></i> 
@@ -195,15 +192,6 @@
                         <h4 class="mb-0">Más obras de este artista</h4>
                     </div>
                     <div class="card-body">
-                        @php
-                            $otherArtworks = $artwork->artist->artworks()
-                                ->where('id', '!=', $artwork->id)
-                                ->where('is_public', 'true')
-                                ->latest()
-                                ->take(4)
-                                ->get();
-                        @endphp
-                        
                         @if($otherArtworks->count() > 0)
                             <div class="row row-cols-2 g-2">
                                 @foreach($otherArtworks as $otherArtwork)

@@ -76,11 +76,11 @@
                                                     <div>
                                                         <span class="me-2" title="Me gusta">
                                                             <i class="bi bi-heart-fill text-danger"></i> 
-                                                            {{ $artwork->likes()->count() }}
+                                                            {{ $artwork->likes_count }}
                                                         </span>
                                                         <span title="Comentarios">
                                                             <i class="bi bi-chat-fill text-primary"></i> 
-                                                            {{ $artwork->comments()->count() }}
+                                                            {{ $artwork->comments_count }}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -122,8 +122,8 @@
                         <p>Se eliminarán permanentemente:</p>
                         <ul>
                             <li>La imagen de la obra</li>
-                            <li>Todos los comentarios ({{ $artwork->comments()->count() }})</li>
-                            <li>Todos los "me gusta" ({{ $artwork->likes()->count() }})</li>
+                            <li>Todos los comentarios ({{ $artwork->comments_count }})</li>
+                            <li>Todos los "me gusta" ({{ $artwork->likes_count }})</li>
                             <li>Toda la información asociada a esta obra</li>
                         </ul>
                     </div>

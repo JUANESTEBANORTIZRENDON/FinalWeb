@@ -25,9 +25,10 @@ class ReportController extends Controller
     {
         $artist = Auth::user();
         
-        // Cargar todas las obras del artista con sus relaciones
+        // Cargar obras con conteos agregados para evitar cargar colecciones completas.
         $artworks = $artist->artworks()
-            ->with(['category', 'likes', 'comments'])
+            ->with('category')
+            ->withCount(['likes', 'comments'])
             ->orderBy('created_at', 'desc')
             ->get();
             
@@ -35,12 +36,8 @@ class ReportController extends Controller
         $data = [
             'artist' => $artist,
             'artworks' => $artworks,
-            'total_likes' => $artworks->sum(function($artwork) {
-                return $artwork->likes->count();
-            }),
-            'total_comments' => $artworks->sum(function($artwork) {
-                return $artwork->comments->count();
-            }),
+            'total_likes' => $artworks->sum('likes_count'),
+            'total_comments' => $artworks->sum('comments_count'),
             'date' => now()->format('d/m/Y H:i'),
         ];
         

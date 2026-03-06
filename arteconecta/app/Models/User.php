@@ -2,20 +2,22 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Artwork;
 use App\Models\ArtworkLike;
 use App\Models\Comment;
 use App\Models\Follower;
 use App\Models\Notification as NotificationModel;
+use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, MustVerifyEmailTrait, HasUuids;
 
     /**
      * Indicates if the IDs are auto-incrementing.
@@ -44,7 +46,8 @@ class User extends Authenticatable
         'bio',
         'website_url',
         'avatar_path',
-        'social_media'
+        'social_media',
+        'is_active'
     ];
 
     /**
@@ -68,7 +71,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'social_media' => 'array',
-        'reset_password_token_expires_at' => 'datetime'
+        'reset_password_token_expires_at' => 'datetime',
+        'is_active' => 'boolean'
     ];
     
     /**
@@ -79,6 +83,16 @@ class User extends Authenticatable
     public function isArtist()
     {
         return $this->user_type === 'artist';
+    }
+
+    /**
+     * Check if user is an admin
+     *
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        return $this->user_type === 'admin';
     }
     
     /**

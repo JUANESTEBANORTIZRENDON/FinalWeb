@@ -8,6 +8,9 @@ use App\Http\Controllers\FollowerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\VisitorProfileController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminFeedMonitorController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -78,6 +81,21 @@ Route::middleware('auth')->group(function () {
         Route::get('/artworks/{artwork}/edit', [ArtworkController::class, 'edit'])->name('artworks.edit');
         Route::patch('/artworks/{artwork}', [ArtworkController::class, 'update'])->name('artworks.update');
         Route::delete('/artworks/{artwork}', [ArtworkController::class, 'destroy'])->name('artworks.destroy');
+    });
+
+    // Rutas de administraciÃ³n (solo admin)
+    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::get('/users/{id}', [AdminUserController::class, 'show'])->name('users.show');
+        Route::get('/users/{id}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{id}', [AdminUserController::class, 'update'])->name('users.update');
+        Route::patch('/users/{id}', [AdminUserController::class, 'update'])->name('users.update.patch');
+        Route::patch('/users/{id}/toggle', [AdminUserController::class, 'toggleActive'])->name('users.toggle');
+        Route::delete('/users/{id}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+        Route::get('/feed-monitor', [AdminFeedMonitorController::class, 'index'])->name('feed.monitor');
     });
     
     // Rutas de interacción (requieren login)

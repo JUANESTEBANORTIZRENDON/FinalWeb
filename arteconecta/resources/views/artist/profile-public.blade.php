@@ -154,11 +154,11 @@
                                                                 <div class="d-flex align-items-center">
                                                                     <span class="me-2" title="Me gusta">
                                                                         <i class="bi bi-heart-fill text-danger"></i> 
-                                                                        {{ $artwork->likes()->count() }}
+                                                                        {{ $artwork->likes_count }}
                                                                     </span>
                                                                     <span title="Comentarios">
                                                                         <i class="bi bi-chat-fill text-primary"></i> 
-                                                                        {{ $artwork->comments()->count() }}
+                                                                        {{ $artwork->comments_count }}
                                                                     </span>
                                                                 </div>
                                                             </div>

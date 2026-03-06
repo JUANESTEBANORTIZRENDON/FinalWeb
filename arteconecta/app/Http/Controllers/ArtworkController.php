@@ -6,6 +6,7 @@ use App\Models\Artwork;
 use App\Models\ArtCategory;
 use App\Models\ArtworkLike;
 use App\Models\Comment;
+use App\Models\Follower;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -41,12 +42,24 @@ class ArtworkController extends Controller
     public function index()
     {
         // Obtener todas las obras públicas con información del artista y categoría
-        $artworks = Artwork::with(['artist', 'category'])
-                        // Con PDO::ATTR_EMULATE_PREPARES (Neon pooler) los booleanos pueden
-                        // serializarse como 1/0 y PostgreSQL rechaza boolean = integer.
-                        ->where('is_public', 'true')
-                        ->latest()
-                        ->paginate(12);
+        $artworksQuery = Artwork::query()
+            ->select(['id', 'artist_id', 'category_id', 'title', 'description', 'image_path', 'created_at'])
+            ->with(['artist:id,name', 'category:id,name'])
+            ->withCount(['likes', 'comments'])
+            // Con PDO::ATTR_EMULATE_PREPARES (Neon pooler) los booleanos pueden
+            // serializarse como 1/0 y PostgreSQL rechaza boolean = integer.
+            ->where('is_public', 'true')
+            ->latest();
+
+        if (Auth::check()) {
+            $artworksQuery->withExists([
+                'likes as user_liked' => function ($query) {
+                    $query->where('user_id', Auth::id());
+                },
+            ]);
+        }
+
+        $artworks = $artworksQuery->paginate(12);
         
         return view('artworks.index', compact('artworks'));
     }
@@ -61,11 +74,13 @@ class ArtworkController extends Controller
             abort(403, 'No tienes permiso para acceder a esta página.');
         }
         
-        // Obtener todas las obras del artista autenticado
-        $artworks = Artwork::with(['category', 'likes', 'comments'])
-                        ->where('artist_id', Auth::id())
-                        ->latest()
-                        ->get();
+        // Obtener obras del artista autenticado con conteos agregados para evitar N+1.
+        $artworks = Artwork::query()
+            ->with('category')
+            ->withCount(['likes', 'comments'])
+            ->where('artist_id', Auth::id())
+            ->latest()
+            ->get();
         
         return view('artist.artworks.my-artworks', compact('artworks'));
     }
@@ -194,16 +209,40 @@ class ArtworkController extends Controller
             abort(403, 'Esta obra no está disponible públicamente.');
         }
         
-        // Cargar relaciones necesarias
-        $artwork->load(['artist', 'category', 'comments.user', 'likes']);
+        // Cargar relaciones necesarias minimizando datos y evitando cargar todos los likes.
+        $artwork->load([
+            'artist:id,name,bio,avatar_path',
+            'category:id,name',
+            'comments' => function ($query) {
+                $query->with('user:id,name')->latest();
+            },
+        ])->loadCount(['likes', 'comments']);
         
-        // Verificar si el usuario autenticado (si existe) ha dado like
+        // Verificar si el usuario autenticado (si existe) ha dado like o sigue al artista.
         $userHasLiked = false;
+        $isFollowing = false;
         if (Auth::check()) {
-            $userHasLiked = $artwork->likes->contains('user_id', Auth::id());
+            $userHasLiked = ArtworkLike::where('artwork_id', $artwork->id)
+                ->where('user_id', Auth::id())
+                ->exists();
+
+            if (Auth::id() !== $artwork->artist_id) {
+                $isFollowing = Follower::where('artist_id', $artwork->artist_id)
+                    ->where('follower_id', Auth::id())
+                    ->exists();
+            }
         }
+
+        $otherArtworks = Artwork::query()
+            ->select(['id', 'title', 'image_path'])
+            ->where('artist_id', $artwork->artist_id)
+            ->where('id', '!=', $artwork->id)
+            ->where('is_public', 'true')
+            ->latest()
+            ->take(4)
+            ->get();
         
-        return view('artworks.show', compact('artwork', 'userHasLiked'));
+        return view('artworks.show', compact('artwork', 'userHasLiked', 'isFollowing', 'otherArtworks'));
     }
     
     /**

@@ -44,7 +44,12 @@ class ArtistProfileController extends Controller
         
         // Intenta cargar las obras del artista, manejar posibles errores
         try {
-            $artworks = $artist->artworks()->with('category')->latest()->get();
+            $artworks = $artist->artworks()
+                ->select(['id', 'artist_id', 'title', 'description', 'category_id', 'image_path', 'is_public', 'created_at'])
+                ->with('category:id,name')
+                ->withCount(['likes', 'comments'])
+                ->latest()
+                ->get();
         } catch (\Exception $e) {
             // Si hay un error, establecer obras como colección vacía
             $artworks = collect([]);
@@ -133,10 +138,12 @@ class ArtistProfileController extends Controller
         
         // Cargar solo las obras públicas del artista
         $artworks = $artist->artworks()
+                          ->select(['id', 'artist_id', 'title', 'description', 'category_id', 'image_path', 'is_public', 'created_at'])
                           // Ver comentario en ArtworkController: PDO emulando prepares en Neon pooler
                           // puede convertir boolean a 1/0.
                           ->where('is_public', 'true')
-                          ->with('category')
+                          ->with('category:id,name')
+                          ->withCount(['likes', 'comments'])
                           ->latest()
                           ->get();
         
