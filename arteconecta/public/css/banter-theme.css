@@ -71,7 +71,8 @@ a {
 .banter-logo {
     display: block;
     width: auto;
-    height: clamp(46px, 6vw, 72px);
+    /* Aumenta el tamaño del logo en la barra de navegación */
+    height: clamp(200px,25vw, 140px);
     filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3));
 }
 
